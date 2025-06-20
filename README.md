@@ -1,5 +1,7 @@
 # Recipe Application
 
+I have used a Laravel/Inertia/React boilerplate with breeze authentication and a Docker environment.
+
 ## Tech Stack
 
 - **Backend**: Laravel
@@ -10,15 +12,13 @@
 ## Requirements
 
 - Docker
-- PHP (for local development without Docker)
-- Composer
 - Node.js and NPM
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone git@github.com:gabenn/myapp.git
    cd myapp
    ```
 
@@ -34,7 +34,7 @@
 
 4. Install JavaScript dependencies:
    ```bash
-   ./vendor/bin/sail npm install
+   npm install
    ```
 
 5. Create the database tables:
@@ -47,30 +47,49 @@
    ./vendor/bin/sail artisan db:seed
    ```
 
-7. Start Vite development server:
+7. Copy the example environment file:
    ```bash
-   ./vendor/bin/sail npm run dev
+   cp .env.example .env
+   ```
+   
+8. Generate the application key:
+   ```bash
+    ./vendor/bin/sail artisan key:generate
+    ```
+   
+9. Configure the `.env` file with database credentials.
+    ```
+    DB_CONNECTION=mysql
+    DB_HOST=mysql
+    DB_PORT=3306
+    DB_DATABASE=laravel
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
+    
+10. Start Vite development server:
+   ```bash
+   npm run dev
    ```
 
 ## Synchronizing Recipes
 
-To manually synchronize recipes from TheMealDB API:
-
+Manual synchronization.
 ```bash
 ./vendor/bin/sail artisan app:sync-meals
 ```
 
-To synchronize recipes from a specific category:
+Synchronize single category.
 
 ```bash
 ./vendor/bin/sail artisan app:sync-meals --category=Seafood
 ```
 
-The application also automatically synchronizes recipes daily at midnight through Laravel's task scheduler.
+I have also implemented a daily synchronization at midnight.
 
 ## Usage
 
-1. Open your browser and navigate to `http://localhost`
+1. Open your browser at `http://localhost`
 2. Log in with the default admin account:
    - Email: admin@admin.pl
    - Password: admin123
@@ -78,23 +97,6 @@ The application also automatically synchronizes recipes daily at midnight throug
 4. Add recipes to favorites by clicking the heart icon
 5. Access your favorite recipes from the "Favorite Recipes" menu
 6. Add comments to recipes
-
-## Project Structure
-
-- `app/Models`: Database models (Meal, Comment, User)
-- `app/Http/Controllers`: Application controllers
-- `app/Console/Commands`: Custom Artisan commands including recipe synchronization
-- `resources/js/Pages`: React components for the frontend
-- `resources/js/Components`: Reusable React components
-- `database/migrations`: Database structure
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License
 

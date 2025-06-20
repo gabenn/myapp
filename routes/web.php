@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/favorites', [MealController::class, 'favorites'])->name('meals.favorites');
 
     Route::post('/meals/{meal}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
 require __DIR__ . '/auth.php';

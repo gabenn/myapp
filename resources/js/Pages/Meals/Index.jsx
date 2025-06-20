@@ -2,6 +2,7 @@ import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Pagination from '@/Components/Pagination';
+import MealItem from '@/Components/MealItem';
 import { debounce } from 'lodash';
 
 export default function Index({ auth, meals, filters }) {
@@ -16,27 +17,6 @@ export default function Index({ auth, meals, filters }) {
             preserveScroll: true,
         });
     }, 300);
-
-    const toggleFavorite = (mealId) => {
-        const favorites = JSON.parse(localStorage.getItem('favoriteMeals') || '[]');
-
-        const isFavorite = favorites.includes(mealId);
-
-        if (isFavorite) {
-            const updatedFavorites = favorites.filter(id => id !== mealId);
-            localStorage.setItem('favoriteMeals', JSON.stringify(updatedFavorites));
-        } else {
-            favorites.push(mealId);
-            localStorage.setItem('favoriteMeals', JSON.stringify(favorites));
-        }
-
-        setData({...data});
-    };
-
-    const isFavoriteMeal = (mealId) => {
-        const favorites = JSON.parse(localStorage.getItem('favoriteMeals') || '[]');
-        return favorites.includes(mealId);
-    };
 
     return (
         <AuthenticatedLayout
@@ -65,32 +45,7 @@ export default function Index({ auth, meals, filters }) {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {meals.data.map((meal) => (
-                                    <div key={meal.id} className="border rounded-lg overflow-hidden shadow-md">
-                                        <img
-                                            src={meal.thumbnail}
-                                            alt={meal.title}
-                                            className="w-full h-48 object-cover"
-                                        />
-                                        <div className="p-4">
-                                            <div className="flex justify-between items-center">
-                                                <h3 className="text-lg font-semibold">
-                                                    <Link href={route('meals.show', meal.id)}>
-                                                        {meal.title}
-                                                    </Link>
-                                                </h3>
-
-                                                <button
-                                                    onClick={() => toggleFavorite(meal.id)}
-                                                    className="text-2xl focus:outline-none"
-                                                >
-                                                    {isFavoriteMeal(meal.id) ? '❤️' : '🤍'}
-                                                </button>
-                                            </div>
-                                            <p className="text-sm text-gray-600 mt-2">
-                                                Category: {meal.category}
-                                            </p>
-                                        </div>
-                                    </div>
+                                    <MealItem key={meal.id} meal={meal} />
                                 ))}
                             </div>
 

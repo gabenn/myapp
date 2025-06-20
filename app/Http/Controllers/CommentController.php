@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\CommentDTO;
 use App\Models\Comment;
 use App\Models\Meal;
+use App\Services\CommentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    protected CommentService $commentService;
+
+    public function __construct(CommentService $commentService)
+    {
+        $this->commentService = $commentService;
+    }
+
     public function store(Request $request, Meal $meal): RedirectResponse
     {
         $request->validate([
@@ -21,21 +30,20 @@ class CommentController extends Controller
             'content.not_regex' => 'Comment cannot consist of only whitespace characters.',
         ]);
 
-        $comment = new Comment([
-            'user_id' => Auth::id(),
-            'meal_id' => $meal->id,
-            'content' => trim($request->input('content')),
-        ]);
+        $commentDTO = CommentDTO::fromRequest(
+            $request->only('content'),
+            Auth::id(),
+            $meal->id
+        );
 
-        $comment->save();
+        $this->commentService->createComment($commentDTO);
 
         return back()->with('success', 'Comment added successfully.');
     }
 
     public function destroy(Comment $comment): RedirectResponse
     {
-        if (Auth::id() === $comment->user_id) {
-            $comment->delete();
+        if ($this->commentService->deleteComment($comment)) {
             return back()->with('success', 'Comment deleted successfully.');
         }
 

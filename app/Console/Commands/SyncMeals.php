@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Meal;
+use App\Repositories\MealRepository;
+use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class SyncMeals extends Command
@@ -23,6 +23,17 @@ class SyncMeals extends Command
      */
     protected $description = 'Synchronizes recipes from TheMealDB API';
 
+    protected MealRepository $mealRepository;
+
+    /**
+     * Create a new command instance.
+     */
+    public function __construct(MealRepository $mealRepository)
+    {
+        parent::__construct();
+        $this->mealRepository = $mealRepository;
+    }
+
     /**
      * Execute the console command.
      */
@@ -36,8 +47,7 @@ class SyncMeals extends Command
             if ($category) {
                 $this->syncByCategory($category);
             } else {
-                $response = Http::get('https://www.themealdb.com/api/json/v1/1/categories.php');
-                $categories = $response->json()['categories'] ?? [];
+                $categories = $this->mealRepository->getCategories();
 
                 $bar = $this->output->createProgressBar(count($categories));
                 $bar->start();
@@ -52,7 +62,7 @@ class SyncMeals extends Command
             }
 
             $this->info('Synchronization completed successfully!');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('An error occurred during synchronization: ' . $e->getMessage());
             Log::error('Recipe synchronization error: ' . $e->getMessage());
         }
@@ -63,13 +73,9 @@ class SyncMeals extends Command
      */
     private function syncByCategory(string $category): void
     {
-        $this->info("Fetching recipes from category: $category");
+        $this->info("Fetching recipes from category: {$category}");
 
-        $response = Http::get("https://www.themealdb.com/api/json/v1/1/filter.php", [
-            'c' => $category
-        ]);
-
-        $meals = $response->json()['meals'] ?? [];
+        $meals = $this->mealRepository->getMealsByCategory($category);
 
         foreach ($meals as $mealData) {
             $this->syncMealDetails($mealData['idMeal']);
@@ -81,43 +87,26 @@ class SyncMeals extends Command
      */
     private function syncMealDetails(string $mealId): void
     {
-        $response = Http::get("https://www.themealdb.com/api/json/v1/1/lookup.php", [
-            'i' => $mealId
-        ]);
+        $mealData = $this->mealRepository->getMealDetails($mealId);
 
-        $mealData = $response->json()['meals'][0] ?? null;
+        if ( ! $mealData) {
+            $this->warn("Recipe not found with ID: {$mealId}");
 
-        if (!$mealData) {
-            $this->warn("Recipe not found with ID: $mealId");
             return;
         }
 
-        $ingredients = [];
-        for ($i = 1; $i <= 20; $i++) {
-            $ingredient = $mealData["strIngredient$i"] ?? null;
-            $measure = $mealData["strMeasure$i"] ?? null;
+        $ingredients = $this->mealRepository->formatIngredients($mealData);
 
-            if ($ingredient && trim($ingredient) !== '') {
-                $ingredients[] = [
-                    'name' => $ingredient,
-                    'measure' => $measure
-                ];
-            }
-        }
-
-        Meal::updateOrCreate(
-            ['meal_id' => $mealId],
-            [
-                'title' => $mealData['strMeal'],
-                'instructions' => $mealData['strInstructions'],
-                'category' => $mealData['strCategory'],
-                'area' => $mealData['strArea'],
-                'thumbnail' => $mealData['strMealThumb'],
-                'youtube' => $mealData['strYoutube'],
-                'tags' => $mealData['strTags'],
-                'ingredients' => $ingredients
-            ]
-        );
+        $this->mealRepository->saveMeal($mealId, [
+            'title' => $mealData['strMeal'],
+            'instructions' => $mealData['strInstructions'],
+            'category' => $mealData['strCategory'],
+            'area' => $mealData['strArea'],
+            'thumbnail' => $mealData['strMealThumb'],
+            'youtube' => $mealData['strYoutube'],
+            'tags' => $mealData['strTags'],
+            'ingredients' => $ingredients,
+        ]);
 
         $this->line("Synchronized recipe: {$mealData['strMeal']}");
     }

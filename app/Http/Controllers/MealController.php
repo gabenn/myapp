@@ -3,22 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Meal;
+use App\Services\MealService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class MealController extends Controller
 {
+    protected MealService $mealService;
+
+    public function __construct(MealService $mealService)
+    {
+        $this->mealService = $mealService;
+    }
+
     public function index(Request $request): Response
     {
         $search = $request->input('search', '');
-
-        $meals = Meal::when($search, function ($query, $search) {
-                return $query->where('title', 'like', "%{$search}%");
-            })
-            ->orderBy('title')
-            ->paginate(21)
-            ->withQueryString();
+        $meals = $this->mealService->getPaginatedMeals($search);
 
         return Inertia::render('Meals/Index', [
             'meals' => $meals,
@@ -30,11 +32,7 @@ class MealController extends Controller
 
     public function show(Meal $meal): Response
     {
-        $meal->load(['comments' => function ($query): void {
-            $query->with('user')
-                ->latest()
-                ->take(20);
-        }]);
+        $meal = $this->mealService->getMealWithComments($meal);
 
         return Inertia::render('Meals/Show', [
             'meal' => $meal,

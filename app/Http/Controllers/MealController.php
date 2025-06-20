@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Meal;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class MealController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $search = $request->input('search', '');
 
@@ -22,30 +23,30 @@ class MealController extends Controller
         return Inertia::render('Meals/Index', [
             'meals' => $meals,
             'filters' => [
-                'search' => $search
-            ]
+                'search' => $search,
+            ],
         ]);
     }
 
-    public function show(Meal $meal)
+    public function show(Meal $meal): Response
     {
-        $meal->load(['comments' => function ($query) {
+        $meal->load(['comments' => function ($query): void {
             $query->with('user')
-                  ->latest()
-                  ->take(20);
+                ->latest()
+                ->take(20);
         }]);
 
         return Inertia::render('Meals/Show', [
-            'meal' => $meal
+            'meal' => $meal,
         ]);
     }
 
-    public function favorites()
+    public function favorites(): Response
     {
         $meals = Meal::all();
 
         return Inertia::render('Meals/Favorites', [
-            'meals' => $meals
+            'meals' => $meals,
         ]);
     }
 }

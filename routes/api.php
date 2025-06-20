@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\MealController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

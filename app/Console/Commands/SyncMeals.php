@@ -26,7 +26,7 @@ class SyncMeals extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->info('Starting recipe synchronization...');
 
@@ -61,7 +61,7 @@ class SyncMeals extends Command
     /**
      * Synchronizes recipes for a given category
      */
-    private function syncByCategory(string $category)
+    private function syncByCategory(string $category): void
     {
         $this->info("Fetching recipes from category: $category");
 
@@ -79,7 +79,7 @@ class SyncMeals extends Command
     /**
      * Retrieves and saves recipe details
      */
-    private function syncMealDetails(string $mealId)
+    private function syncMealDetails(string $mealId): void
     {
         $response = Http::get("https://www.themealdb.com/api/json/v1/1/lookup.php", [
             'i' => $mealId

@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Meal;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, Meal $meal)
+    public function store(Request $request, Meal $meal): RedirectResponse
     {
         $request->validate([
             'content' => 'required|string|max:1000',
@@ -18,7 +19,7 @@ class CommentController extends Controller
         $comment = new Comment([
             'user_id' => Auth::id(),
             'meal_id' => $meal->id,
-            'content' => $request->input('content')
+            'content' => $request->input('content'),
         ]);
 
         $comment->save();

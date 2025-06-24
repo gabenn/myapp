@@ -39,9 +39,16 @@ class MealController extends Controller
         ]);
     }
 
-    public function favorites(): Response
+    public function favorites(Request $request): Response
     {
-        $meals = Meal::all();
+        $favoriteIds = $request->input('favoriteIds', []);
+
+        $meals = !empty($favoriteIds)
+            ? Meal::whereIn('id', $favoriteIds)
+                ->orderBy('title')
+                ->paginate(9)
+                ->withQueryString()
+            : collect(['data' => []]);
 
         return Inertia::render('Meals/Favorites', [
             'meals' => $meals,

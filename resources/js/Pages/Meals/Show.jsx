@@ -17,7 +17,7 @@ export default function Show({ auth, meal }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">{meal.title}</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight" id="recipe-title">{meal.title}</h2>}
         >
             <Head title={meal.title} />
 
@@ -27,8 +27,9 @@ export default function Show({ auth, meal }) {
                         <button
                             onClick={handleGoBack}
                             className="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ease-in-out"
+                            aria-label="Go back to previous page"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                             <span className="font-medium">Go Back</span>
@@ -41,9 +42,11 @@ export default function Show({ auth, meal }) {
                         />
                     </div>
 
-                    <MealCard meal={meal} />
+                    <div aria-labelledby="recipe-title">
+                        <MealCard meal={meal} />
+                    </div>
 
-                    <div className="mt-8">
+                    <div className="mt-8" aria-label="Comments section">
                         <CommentSection meal={meal} auth={auth} />
                     </div>
                 </div>

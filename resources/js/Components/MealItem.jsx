@@ -4,12 +4,12 @@ import FavoriteButton from '@/Components/FavoriteButton';
 
 export default function MealItem({ meal, onFavoriteToggle = null }) {
     return (
-        <div className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
-            <Link href={route('meals.show', meal.id)} className="block h-full">
+        <div className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300" role="listitem">
+            <Link href={route('meals.show', meal.id)} className="block h-full" aria-label={`View recipe: ${meal.title}`}>
                 <div className="relative">
                     <img
                         src={meal.thumbnail}
-                        alt={meal.title}
+                        alt={`Dish: ${meal.title}`}
                         className="w-full h-48 object-cover"
                     />
                     <div className="absolute top-2 right-2 z-10" onClick={(e) => e.preventDefault()}>
@@ -25,11 +25,11 @@ export default function MealItem({ meal, onFavoriteToggle = null }) {
                         {meal.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-2">
-                        Category: {meal.category}
+                        <span className="sr-only">Category:</span> {meal.category}
                     </p>
                     {meal.area && (
                         <p className="text-sm text-gray-600">
-                            Cuisine: {meal.area}
+                            <span className="sr-only">Cuisine:</span> {meal.area}
                         </p>
                     )}
                 </div>
@@ -37,4 +37,3 @@ export default function MealItem({ meal, onFavoriteToggle = null }) {
         </div>
     );
 }
-

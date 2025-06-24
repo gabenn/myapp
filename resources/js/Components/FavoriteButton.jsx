@@ -26,15 +26,20 @@ export default function FavoriteButton({ mealId, showText = false, className = '
         }
     };
 
+    const ariaLabel = isFavorite ? 'Remove from favorites' : 'Add to favorites';
+
     return (
         <button
             onClick={toggleFavorite}
             className={`focus:outline-none ${className}`}
+            aria-label={ariaLabel}
+            aria-pressed={isFavorite}
+            type="button"
         >
-            <span className="text-2xl">{isFavorite ? '❤️' : '🤍'}</span>
+            <span className="text-2xl" aria-hidden="true">{isFavorite ? '❤️' : '🤍'}</span>
             {showText && (
                 <span className="text-sm ml-2">
-                    {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                    {ariaLabel}
                 </span>
             )}
         </button>
